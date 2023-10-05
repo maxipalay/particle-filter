@@ -8,7 +8,7 @@ from plotting import Plotter
 from state import State
 
 # USER PARAMS
-N_PARTICLES = 200
+N_PARTICLES = 2
 SIGMA_INITIAL_STATE = 1
 
 
@@ -50,7 +50,6 @@ if __name__ == "__main__":
         else:
             # get time in between timesteps
             dt = row[Control.T] - previous_timestamp
-            # get control action
             # get measurements that happened between this and the previous timestep
             z = dl.get_measurements(previous_timestamp, row[Control.T])
             # get the ground truth measurements between our previous loop and this one
