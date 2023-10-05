@@ -1,37 +1,31 @@
 import numpy as np
-from utils import sample, low_variance_sampler
+from prob_utils import sample, low_variance_sampler
 
-CONTROL_V, CONTROL_W = 0, 1
-####### Magic numbers in self._state initialization
-###### more magic numbers (configuration_length)
+CONTROL_V, CONTROL_W = 0, 1 # control is represented by an array of [velocity, angular velocity] commands in [m/s,rad/s]
+STATE_X, STATE_Y, STATE_THETA = 0, 1, 2 # state is represented by an array if size [n particles, 3]
 
 class ParticleFilter:
     """Class representing a Particle Filter.
         Args:
             :motion_model: a function that given a state sample, a control and a dt, returns a new state sample
-            :landmark_likelihood: a function that given a state sample and a list of landmarks, calculates a score for the likelihood of landmarks observation
+            :measurement_likelihood: a function that given a state sample and a list of landmarks, calculates a score for the likelihood of landmarks observation
             :n_particles: the number of particles to use
             :config_length:
     """
-    def __init__(self, motion_model, landmark_likelihood, n_particles, config_length, initial_state = None):
+    def __init__(self, motion_model, measurement_likelihood, initial_state, n_particles, config_length=3):
         """Args:
             :measurement_model:
             :motion_model:
             :initial_state:
         """
-
-        # if no initial state
-        if initial_state is None:
-            # initialize random gaussian state
-            self._state = [[sample(1) for _ in range(config_length)] for _ in range(n_particles)]
-        else:
-            self._state = initial_state
-        self._motion_model = motion_model
         self._n_particles = n_particles
         self._config_length = config_length
-        self._landmark_likelihood = landmark_likelihood
+        self._state = initial_state
+        # the two functions needed by the filter
+        self._motion_model = motion_model
+        self._measurement_likelihood = measurement_likelihood
 
-    def update(self, control, measurements, dt):
+    def update(self, control, measurements, dt, map):
         """Update our state.
             Input args:
                 :control:
@@ -47,7 +41,7 @@ class ParticleFilter:
                 # get a sample from the motion model
                 temp_state = self._motion_model(self._state[m], control, dt)
                 # calculate the weight for the sample
-                weights[m] = self._landmark_likelihood(measurements, temp_state)
+                weights[m] = self._measurement_likelihood(measurements, temp_state, map)
                 # save the sample in x_hat
                 x_hat[m,:] = temp_state
 

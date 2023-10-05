@@ -1,10 +1,4 @@
 import numpy as np
-ALPHA_V = 0.1
-ALPHA_W = 2.0
-
-CONTROL_V, CONTROL_W = 0, 1
-STATE_X, STATE_Y, STATE_THETA = 0, 1, 2
-LMT_S, LMT_X, LMT_Y = 0, 1, 2
 
 def sample(b):
     """Returns a sample form a Gaussian distirbution as described in
