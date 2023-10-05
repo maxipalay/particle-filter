@@ -1,21 +1,19 @@
 import numpy as np
 from prob_utils import sample
+from state import State
+from data_utils import Control
 
-# control is represented by an array of [velocity, angular velocity] commands in [m/s,rad/s]
-CONTROL_V, CONTROL_W = 0, 1
-# state is represented by an array if size [n particles, 3]
-STATE_X, STATE_Y, STATE_THETA = 0, 1, 2
 # noise constants
 SIGMA_V = 0.1
 SIGMA_W = 2.0
 
 
 def motion_model(state, control, dt):
-    v = control[CONTROL_V]
-    w = control[CONTROL_W]
-    x0 = state[STATE_X]
-    y0 = state[STATE_Y]
-    theta0 = state[STATE_THETA]
+    v = control[Control.V]
+    w = control[Control.W]
+    x0 = state[State.X]
+    y0 = state[State.Y]
+    theta0 = state[State.HEADING]
 
     # add gaussian noise to the commands
     v = v + sample(SIGMA_V)

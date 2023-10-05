@@ -1,11 +1,6 @@
 import numpy as np
-from prob_utils import sample, low_variance_sampler
-
-# control is represented by an array of [velocity, angular velocity] commands in [m/s,rad/s]
-CONTROL_V, CONTROL_W = 0, 1
-# state is represented by an array if size [n particles, 3]
-STATE_X, STATE_Y, STATE_THETA = 0, 1, 2
-
+from prob_utils import low_variance_sampler
+from data_utils import Control
 
 class ParticleFilter:
     """Class representing a Particle Filter.
@@ -37,7 +32,7 @@ class ParticleFilter:
                 :dt:
         """
         # if there is a control command or measurement, run the filter
-        if control[CONTROL_V] != 0.0 or control[CONTROL_W] != 0.0 or measurements.size > 0:
+        if control[Control.V] != 0.0 or control[Control.W] != 0.0 or measurements.size > 0:
             # initialize variables
             x, x_hat, weights = np.zeros((self._n_particles, self._config_length)), np.zeros(
                 (self._n_particles, self._config_length)), np.zeros(self._n_particles)

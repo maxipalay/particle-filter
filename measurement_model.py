@@ -1,8 +1,6 @@
 import numpy as np
-import data_utils as du
-
-# state is represented by an array if size [n particles, 3]
-STATE_X, STATE_Y, STATE_THETA = 0, 1, 2
+from state import State
+from data_utils import Landmark, Measurement
 SCALING_FACTOR = 10
 
 # :measurement_model: a function that given a current state and a landmark, returns the expected measurement
@@ -19,11 +17,11 @@ def measurement_model(state, landmark):
     #   - landmark y wrt world
     # Outputs:
     #   - radius, theta wrt robot frame
-    xr = state[STATE_X]
-    yr = state[STATE_Y]
-    thetar = state[STATE_THETA]
-    xl = landmark[du.LMT_X]
-    yl = landmark[du.LMT_Y]
+    xr = state[State.X]
+    yr = state[State.Y]
+    thetar = state[State.HEADING]
+    xl = landmark[Landmark.X]
+    yl = landmark[Landmark.Y]
 
     r = np.sqrt((xl-xr)**2+(yl-yr)**2)
     # this is absolute orientation (wrt world frame)
@@ -41,14 +39,14 @@ def measurement_likelihood(z, state, map):
     probs = np.array([])
     for m in z:  # for each measurement
         # get the landmark truth
-        landmark_truth = map[np.where(m[du.MEAS_S] == map[:, du.LMT_S])][0]
+        landmark_truth = map[np.where(m[Measurement.SUBJECT] == map[:, Landmark.SUBJECT])][0]
         # print(landmark_truth)
         # print(m)
         # print(landmark_truth)
         # get the landmark's x and y position in the map
 
         # get the measurement's range and bearing
-        meas_r, meas_theta = m[du.MEAS_R], m[du.MEAS_B]
+        meas_r, meas_theta = m[Measurement.R], m[Measurement.B]
         # calculate r hat
         pred_r, pred_theta = measurement_model(state, landmark_truth)
 
