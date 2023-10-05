@@ -4,6 +4,7 @@ from data_utils import GroundTruth, Landmark, Measurement
 from state import State
 
 class Plotter():
+    """Plotter class that contains the code for plotting the particle filter in action."""
     PLOT_REALTIME_PARTICLES, PLOT_REALTIME_MEAN, PLOT_FINAL_PATH = 0, 1, 2
 
     def __init__(self, n_particles, landmarks, plot_mode=PLOT_REALTIME_PARTICLES):
@@ -47,8 +48,6 @@ class Plotter():
     def update(self, means, state, z, tru, landmarks, i):
         # plot results
         if self.plot_mode == self.PLOT_REALTIME_MEAN:
-            # ax.plot(np.mean(np.matrix(state)[:,0]),np.mean(np.matrix(state)[:,1]), markersize=4, color='black', marker='o', linestyle='None')
-
             # get the mean x,y,theta (this is just for ease of understanding)
             x = means[i, State.X]
             y = means[i, State.Y]
@@ -100,7 +99,6 @@ class Plotter():
                 self.truth_dot.set_data(x, y)
                 # set the arrow
                 self.truth_arrow.set_data(x=x, y=y, dx=dx, dy=dy)
-                # ax.plot(tru[0,GT_X],tru[0,GT_Y], markersize=8, color='orange', marker='o', linestyle='None')
 
             plt.xlim(-6, 9)
             plt.ylim(-7.5, 7.5)
