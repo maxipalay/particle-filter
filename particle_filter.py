@@ -1,8 +1,11 @@
 import numpy as np
 from prob_utils import sample, low_variance_sampler
 
-CONTROL_V, CONTROL_W = 0, 1 # control is represented by an array of [velocity, angular velocity] commands in [m/s,rad/s]
-STATE_X, STATE_Y, STATE_THETA = 0, 1, 2 # state is represented by an array if size [n particles, 3]
+# control is represented by an array of [velocity, angular velocity] commands in [m/s,rad/s]
+CONTROL_V, CONTROL_W = 0, 1
+# state is represented by an array if size [n particles, 3]
+STATE_X, STATE_Y, STATE_THETA = 0, 1, 2
+
 
 class ParticleFilter:
     """Class representing a Particle Filter.
@@ -12,6 +15,7 @@ class ParticleFilter:
             :n_particles: the number of particles to use
             :config_length:
     """
+
     def __init__(self, motion_model, measurement_likelihood, initial_state, n_particles, config_length=3):
         """Args:
             :measurement_model:
@@ -35,15 +39,17 @@ class ParticleFilter:
         # if there is a control command or measurement, run the filter
         if control[CONTROL_V] != 0.0 or control[CONTROL_W] != 0.0 or measurements.size > 0:
             # initialize variables
-            x, x_hat, weights = np.zeros((self._n_particles, self._config_length)), np.zeros((self._n_particles,self._config_length)), np.zeros(self._n_particles)
+            x, x_hat, weights = np.zeros((self._n_particles, self._config_length)), np.zeros(
+                (self._n_particles, self._config_length)), np.zeros(self._n_particles)
             # for each particle
             for m in range(self._n_particles):
                 # get a sample from the motion model
                 temp_state = self._motion_model(self._state[m], control, dt)
                 # calculate the weight for the sample
-                weights[m] = self._measurement_likelihood(measurements, temp_state, map)
+                weights[m] = self._measurement_likelihood(
+                    measurements, temp_state, map)
                 # save the sample in x_hat
-                x_hat[m,:] = temp_state
+                x_hat[m, :] = temp_state
 
             # normalize the weights
             weights /= np.sum(weights)
@@ -53,7 +59,5 @@ class ParticleFilter:
                 self._state = low_variance_sampler(x_hat, weights).copy()
             else:
                 self._state = x_hat.copy()
-                
-        return self._state
 
-    
+        return self._state

@@ -17,6 +17,7 @@ ODOM_T, ODOM_V, ODOM_W = 0, 1, 2
 # measurements timestamp, subject (barcode) id, range, bearing
 MEAS_T, MEAS_S, MEAS_R, MEAS_B = 0, 1, 2, 3
 
+
 class DataLoader:
     def __init__(self):
         # load data
@@ -27,29 +28,24 @@ class DataLoader:
         self.barcodes = np.loadtxt(PATH_BARCODES)
         # this generates a list of the barcode IDs that are actually landmarks
         # needed because some barcodes are not landmarks, and are detected in our measurements
-        self.barcodes_landmarks = self.barcodes[np.isin(self.barcodes[:,BARC_S],self.landmarks[:,LMT_S])][:,BARC_B]
+        self.barcodes_landmarks = self.barcodes[np.isin(
+            self.barcodes[:, BARC_S], self.landmarks[:, LMT_S])][:, BARC_B]
 
     def get_measurements(self, timestamp1, timestamp2):
         """Searches for the measurements between the given timestamps,
             and filters out the ones that are not landmarks
 
         """
-        indexes = np.where((timestamp1 < self.measurements[:, MEAS_T]) & \
-                           (self.measurements[:, MEAS_T] <= timestamp2) & \
-                            (np.isin(self.measurements[:, BARC_B], self.barcodes_landmarks)))  # indexes of measurements between the given timesteps and that are landmarks
+        indexes = np.where((timestamp1 < self.measurements[:, MEAS_T]) &
+                           (self.measurements[:, MEAS_T] <= timestamp2) &
+                           (np.isin(self.measurements[:, BARC_B], self.barcodes_landmarks)))  # indexes of measurements between the given timesteps and that are landmarks
         x = self.measurements[indexes, :][0].copy()
         # replace the barcode ID with the landmark ID
         for i in range(x.shape[0]):
-            x[i,MEAS_S] = self.barcodes[np.where(self.barcodes[:,BARC_B]==x[i,MEAS_S])[0][0]][BARC_S]
+            x[i, MEAS_S] = self.barcodes[np.where(
+                self.barcodes[:, BARC_B] == x[i, MEAS_S])[0][0]][BARC_S]
         return x
-    
+
     def get_groundtruth(self, prev_timestamp, this_timestamp):
         # return the ground truth measurements between the previous timestep and this one
-        return self.ground_truth[np.where((prev_timestamp < self.ground_truth[:,GT_T]) & (self.ground_truth[:,GT_T] <= this_timestamp)),:][0]
-    
-
-
-
-
-
-
+        return self.ground_truth[np.where((prev_timestamp < self.ground_truth[:, GT_T]) & (self.ground_truth[:, GT_T] <= this_timestamp)), :][0]
