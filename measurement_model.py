@@ -1,5 +1,5 @@
 import numpy as np
-from data_utils import DataLoader
+import data_utils as du
 
 STATE_X, STATE_Y, STATE_THETA = 0, 1, 2 # state is represented by an array if size [n particles, 3]
 SCALING_FACTOR = 10
@@ -19,8 +19,8 @@ def measurement_model(state, landmark):
     xr = state[STATE_X]
     yr = state[STATE_Y]
     thetar = state[STATE_THETA]
-    xl = landmark[DataLoader.LMT_X]
-    yl = landmark[DataLoader.LMT_Y]
+    xl = landmark[du.LMT_X]
+    yl = landmark[du.LMT_Y]
 
     r = np.sqrt((xl-xr)**2+(yl-yr)**2)
     alpha = np.arctan2(yl-yr,xl-xr) # this is absolute orientation (wrt world frame)
@@ -36,14 +36,14 @@ def measurement_likelihood(z, state, map):
     probs = np.array([])
     for m in z: # for each measurement
         # get the landmark truth
-        landmark_truth = map[np.where(m[DataLoader.MEAS_S]==map[:,DataLoader.LMT_S])][0]
+        landmark_truth = map[np.where(m[du.MEAS_S]==map[:,du.LMT_S])][0]
         #print(landmark_truth)
         #print(m)
         #print(landmark_truth)
         # get the landmark's x and y position in the map
         
         # get the measurement's range and bearing
-        meas_r, meas_theta = m[DataLoader.MEAS_R], m[DataLoader.MEAS_B]
+        meas_r, meas_theta = m[du.MEAS_R], m[du.MEAS_B]
         # calculate r hat
         pred_r, pred_theta = measurement_model(state, landmark_truth)
         
