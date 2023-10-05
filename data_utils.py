@@ -1,5 +1,4 @@
 import numpy as np
-
 PATH_ODOM = 'ds1/ds1_Odometry.dat'
 PATH_GROUNDTRUTH = 'ds1/ds1_Groundtruth.dat'
 PATH_LANDMARKS = 'ds1/ds1_Landmark_Groundtruth.dat'
@@ -14,17 +13,17 @@ class Landmark:
 
 class Measurement:
     """Pseudo-enum for indexing the Measurement vectors."""
-    T, SUBJECT, R, B = 0, 1, 2, 3 # timestamp, subject id, 
+    T, SUBJECT, R, B = 0, 1, 2, 3  # timestamp, subject id,
 
 
 class Control:
     """Pseudo-enum for indexing the Control/Odometry vectors."""
-    T, V, W = 0, 1, 2 # timestamp, vel, ang. vel.
+    T, V, W = 0, 1, 2  # timestamp, vel, ang. vel.
 
 
 class GroundTruth:
     """Pseudo-enum for indexing the GroundTruth vectors."""
-    T, X, Y, H = 0, 1, 2, 3 # timestamp, x, y, heading
+    T, X, Y, H = 0, 1, 2, 3  # timestamp, x, y, heading
 
 
 class Barcode:
@@ -33,6 +32,10 @@ class Barcode:
 
 
 class DataLoader:
+    """
+    Helper class to load the datasets into numpy arrays.
+    """
+
     def __init__(self):
         # load data
         self.control = np.loadtxt(PATH_ODOM)
@@ -46,20 +49,18 @@ class DataLoader:
             self.barcodes[:, Barcode.S], self.landmarks[:, Landmark.SUBJECT])][:, Barcode.B]
 
     def get_measurements(self, timestamp1, timestamp2):
-        """Searches for the measurements between the given timestamps,
-            and filters out the ones that are not landmarks
-
-        """
+        """Searches for the measurements between the given timestamps, filters out the ones that are not landmarks, and replaces the measurement ID with a landmark ID"""
+        # indexes of measurements between the given timesteps and that are landmarks (we're filtering out measurements whose subject id is not a landmark id)
         indexes = np.where((timestamp1 < self.measurements[:, Measurement.T]) &
                            (self.measurements[:, Measurement.T] <= timestamp2) &
-                           (np.isin(self.measurements[:, Barcode.B], self.barcodes_landmarks)))  # indexes of measurements between the given timesteps and that are landmarks
+                           (np.isin(self.measurements[:, Barcode.B], self.barcodes_landmarks)))
         x = self.measurements[indexes, :][0].copy()
-        # replace the barcode ID with the landmark ID
+        # replace the barcode ID (=measurement ID) with the landmark ID
         for i in range(x.shape[0]):
             x[i, Measurement.SUBJECT] = self.barcodes[np.where(
                 self.barcodes[:, Barcode.B] == x[i, Measurement.SUBJECT])[0][0]][Barcode.S]
         return x
 
     def get_groundtruth(self, prev_timestamp, this_timestamp):
-        # return the ground truth measurements between the previous timestep and this one
+        """Returns the ground truth measurements between the given timesteps."""
         return self.ground_truth[np.where((prev_timestamp < self.ground_truth[:, GroundTruth.T]) & (self.ground_truth[:, GroundTruth.T] <= this_timestamp)), :][0]
