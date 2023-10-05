@@ -26,11 +26,8 @@ if __name__=="__main__":
 
     previous_timestamp = None
         # get the robot's starting position in world coordinates
-    x0 = dl.ground_truth[0,dl.GT_X]
-    y0 = dl.ground_truth[0,dl.GT_Y]
-    h0 = dl.ground_truth[0,dl.GT_H]
+    x0, yo, h0 = dl.ground_truth[0,dl.GT_X], dl.ground_truth[0,dl.GT_Y], dl.ground_truth[0,dl.GT_H]
 
-    state = None
     # initialize random state
     if seed_initial_position:
         # generate a state with a Gaussian distibution around the initial point
