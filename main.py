@@ -8,9 +8,10 @@ from plotting import Plotter
 from state import State
 
 # USER PARAMS
-N_PARTICLES = 2
+N_PARTICLES = 100
 SIGMA_INITIAL_STATE = 1
-
+SMOOTH_MEAN = False
+SMOOTHING_ALPHA = 0.8
 
 def initialize_random_state(x0=0, y0=0, h0=0):
     # generate a state with a Gaussian distibution around the initial point
@@ -39,11 +40,14 @@ if __name__ == "__main__":
 
     control = dl.control
     positions = np.zeros((len(control), N_PARTICLES, State.LENGTH))
-    means = np.zeros((len(control), 3))
+    means = np.zeros((len(control)-1, State.LENGTH))
+    distance_position = []
+    distance_heading = []
     previous_timestamp = None
 
+    valid_means_counter = 0
     # run over the odometry data
-    for i, row in enumerate(control):
+    for row in control:
         # first time check
         if previous_timestamp is None:
             previous_timestamp = row[Control.T]
@@ -53,17 +57,43 @@ if __name__ == "__main__":
             # get measurements that happened between this and the previous timestep
             z = dl.get_measurements(previous_timestamp, row[Control.T])
             # get the ground truth measurements between our previous loop and this one
-            tru = dl.get_groundtruth(previous_timestamp, row[Control.T])
+            truth = dl.get_groundtruth(previous_timestamp, row[Control.T])
 
             # call our particle filter to get new state
             state = filter.update(row, z, dt, dl.landmarks)
 
             # add the means to our mean-tracking matrix
-            means[i, :] = np.array(
-                [np.mean(state[:, State.X]), np.mean(state[:, State.Y]), np.mean(state[:, State.HEADING])])
-            # update the plot (if configured for real time plotting)
-            plot.update(means, state, z, tru, dl.landmarks, i)
-            # update timestamp
+            if SMOOTH_MEAN and valid_means_counter > 1:
+                means[valid_means_counter, :] = np.array(
+                    [means[valid_means_counter-1,State.X]*SMOOTHING_ALPHA+np.mean(state[:, State.X])*(1-SMOOTHING_ALPHA), 
+                    means[valid_means_counter-1,State.Y]*SMOOTHING_ALPHA+np.mean(state[:, State.Y])*(1-SMOOTHING_ALPHA),
+                    means[valid_means_counter-1,State.HEADING]*SMOOTHING_ALPHA+np.mean(state[:, State.HEADING])*(1-SMOOTHING_ALPHA)])
+            else:
+                means[valid_means_counter, :] = np.array([np.mean(state[:, State.X]), 
+                    np.mean(state[:, State.Y]),
+                    np.mean(state[:, State.HEADING])])
+            
+            # add the difference between the predicted
+            if truth.size > 0:
+                distance_position.append(np.sqrt((means[valid_means_counter, State.X]-np.mean(truth[:, GroundTruth.X]))**2+(
+                    means[valid_means_counter, State.Y]-np.mean(truth[:, GroundTruth.Y]))**2))
+                
+                mean_heading = means[valid_means_counter, State.HEADING]*180.0/np.pi%360
+                # the heading isn't bounded
+                mean_heading = mean_heading - 360.0 if mean_heading >= 180.0 else mean_heading
+                truth_heading = np.mean(truth[:, GroundTruth.H])*180.0/np.pi
+                # difference
+                diff = mean_heading - truth_heading
+                diff = diff-360.0 if diff >= 180.0 else diff
+                diff = diff+360.0 if diff < -180.0 else diff
+                diff = abs(diff)
+                distance_heading.append(diff)
+
+            plot.update(means, state, z, truth, dl.landmarks, valid_means_counter)
+            valid_means_counter += 1
             previous_timestamp = row[Control.T]
 
-    plot.plot(means, dl.ground_truth)
+    print(f"n_particles: {N_PARTICLES}")
+    print(f"mean distance [meters]: {np.mean(distance_position)}")
+    print(f"mean difference heading [degrees]: {np.mean(distance_heading)}")
+    plot.plot(means[0:valid_means_counter-1], dl.ground_truth)
