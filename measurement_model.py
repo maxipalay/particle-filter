@@ -4,6 +4,7 @@ from data_utils import Landmark, Measurement
 
 SCALING_FACTOR = 10
 
+
 def measurement_model(state, landmark):
     """Measurement model.
         Given a current state and a known landmark, 
@@ -46,11 +47,12 @@ def measurement_likelihood(z, state, map):
     probs = np.array([])
     for m in z:  # for each measurement
         # get the landmark truth
-        landmark_truth = map[np.where(m[Measurement.SUBJECT] == map[:, Landmark.SUBJECT])][0]
+        landmark_truth = map[np.where(
+            m[Measurement.SUBJECT] == map[:, Landmark.SUBJECT])][0]
 
         # get the measurement's range and bearing
         meas_r, meas_theta = m[Measurement.R], m[Measurement.B]
-        
+
         # get a prediction from out measurement model
         pred_r, pred_theta = measurement_model(state, landmark_truth)
 
@@ -64,10 +66,13 @@ def measurement_likelihood(z, state, map):
         # range distance between measurement and prediction
         distance_r = np.sqrt((pred_x-meas_x)**2+(pred_y-meas_y)**2)
         # difference between predicted and measured bearing
-        distance_b = np.abs(meas_theta - pred_theta) * \
-            SCALING_FACTOR  # radians max is 2*pi
+        diff = meas_theta - pred_theta
+        #diff = diff-2*np.pi if diff >= np.pi else diff
+        #diff = diff+2*np.pi if diff < -np.pi else diff
+        distance_b = abs(diff) * \
+            SCALING_FACTOR 
         distance = distance_r*distance_b
         # append difference to scores list
         probs = np.append(probs, distance)
-    
+
     return 1.0/np.prod(probs)
