@@ -31,6 +31,8 @@ def motion_model(state, control, dt):
     # the actual motion model
     x = x0 + v * np.cos(theta0) * dt
     y = y0 + v * np.sin(theta0) * dt
+
+    # this can cause issues because theta is unbounded
     theta = theta0 + w * dt
 
     return np.array([x, y, theta])
