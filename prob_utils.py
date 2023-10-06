@@ -2,16 +2,15 @@ import numpy as np
 
 
 def sample(b):
-    """Returns a sample form a Gaussian distirbution as described in
-    ......
+    """Returns a sample form a Gaussian distirbution.
+        Based on Table 5.4 of Thrun, Burgard, Fox - Probabilistic Robotics.
     """
     return 0.5*np.sum([np.random.uniform(-np.sqrt(b), np.sqrt(b)) for _ in range(12)])
 
 
 def low_variance_sampler(state, weights):
-    """Low variance sampler implemented following the
-        Provided scheme in ...
-
+    """Low variance sampler.
+        Based on Table 4.4 of Thrun, Burgard, Fox - Probabilistic Robotics.
     """
     x_hat = np.zeros(state.shape)
     # state.shape[0] is the number of samples
