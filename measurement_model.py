@@ -2,8 +2,6 @@ import numpy as np
 from state import State
 from data_utils import Landmark, Measurement
 
-SCALING_FACTOR = 10
-
 
 def measurement_model(state, landmark):
     """Measurement model.
@@ -67,10 +65,7 @@ def measurement_likelihood(z, state, map):
         distance_r = np.sqrt((pred_x-meas_x)**2+(pred_y-meas_y)**2)
         # difference between predicted and measured bearing
         diff = meas_theta - pred_theta
-        #diff = diff-2*np.pi if diff >= np.pi else diff
-        #diff = diff+2*np.pi if diff < -np.pi else diff
-        distance_b = abs(diff) * \
-            SCALING_FACTOR 
+        distance_b = abs(diff)
         distance = distance_r*distance_b
         # append difference to scores list
         probs = np.append(probs, distance)
