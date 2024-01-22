@@ -32,3 +32,8 @@ The dataset used is a modified version of the work made available by Keith Leung
 This work was made in an academic environment, with certain restrictions for pedagogic purposes.
 
 This code is not guaranteed to be free of bugs.
+
+This code was tested using:
+- `python 3.9.6`
+- `numpy 1.26.3`
+- `matplotlib 3.8.2`
