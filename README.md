@@ -1,6 +1,7 @@
 # Particle filter
-
-![particle-filter](https://github.com/maxipalay/particle_filter/assets/41023326/97676c99-0d67-4e02-a886-2d8d1d1b1bc0)
+<p align="center">
+<img src="https://github.com/maxipalay/particle_filter/assets/41023326/97676c99-0d67-4e02-a886-2d8d1d1b1bc0">
+</p>
 
 Python implementation of a Particle Filter for robot localization. This work was done for <em>Machine Learning and Artificial Intelligence for Robotics</em>, an elective course I took in my MSR journey. The implementation is based on the particle filter as explained in <em>Probabilistic Robotics, by Thrun, Sebastian; Wolfram, Burgard; Fox, Dieter. MIT Press Books, 2006</em>.
 
