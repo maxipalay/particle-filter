@@ -8,10 +8,12 @@ from plotting import Plotter
 from state import State
 
 # USER PARAMS
-N_PARTICLES = 100
+N_PARTICLES = 50
 SIGMA_INITIAL_STATE = 1
 SMOOTH_MEAN = False
 SMOOTHING_ALPHA = 0.8
+#PLOTTING_MODE = Plotter.PLOT_REALTIME_PARTICLES
+PLOTTING_MODE = Plotter.PLOT_FINAL_PATH
 
 def initialize_random_state(x0=0, y0=0, h0=0):
     # generate a state with a Gaussian distibution around the initial point
@@ -36,7 +38,7 @@ if __name__ == "__main__":
 
     # instance plotter
     plot = Plotter(N_PARTICLES, dl.landmarks,
-                   Plotter.PLOT_FINAL_PATH)
+                   PLOTTING_MODE)
 
     control = dl.control
     positions = np.zeros((len(control), N_PARTICLES, State.LENGTH))
